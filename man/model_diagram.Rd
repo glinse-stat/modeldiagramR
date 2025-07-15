@@ -12,6 +12,10 @@ model_diagram(
   heightVal = 1600,
   includeSizes = TRUE,
   includeLabels = TRUE,
+  orientation = "vertical",
+  scale_fontsize = 1,
+  shift_fixed = 0,
+  shift_random = 0,
   nodeColors = md_color(diagram = "gray25", random = "gray25", fixed = "gray25"),
   nodeFillColors = md_fill(diagram = "aliceblue", random = "aliceblue", fixed =
     "darkseagreen1"),
@@ -38,6 +42,19 @@ Default is \code{TRUE}.}
 \item{includeLabels}{Optional. Include labels for the model diagram components.
 Default is \code{TRUE}.}
 
+\item{orientation}{Optional. Orientation of the diagram, either vertically or
+horizontally. Options are \code{"vertical"}, \code{"horizontal"}. Default is \code{"vertical"}.}
+
+\item{scale_fontsize}{Optional. Proportional font size adjustment for model
+diagram component, fixed effect, and random effect labels.
+Multiplies these label font sizes by the specified amount. Default is \code{1}.}
+
+\item{shift_fixed}{Optional. Additive x axis adjustment for fixed effect labels,
+only used when \code{orientation == "horizontal"}. Default is \code{0}.}
+
+\item{shift_random}{Optional. Additive x axis adjustment for random effect labels,
+only used when \code{orientation == "horizontal"}. Default is \code{0}.}
+
 \item{nodeColors}{Optional. Function specifying the colors (\code{\link[=md_color]{md_color()}})
 for the outline of the nodes. Components can be specified individually
 (\code{diagram}, \code{random}, and \code{fixed}).}
@@ -51,7 +68,7 @@ for the font color of text in the nodes. Components can be specified
 individually (\code{diagram}, \code{random}, and \code{fixed}).}
 }
 \value{
-A DiagrammeR object.
+A rendered DiagrammeR graph as an SVG document.
 }
 \description{
 \code{model_diagram()} takes a hierarchical nested model and returns a DiagrammeR

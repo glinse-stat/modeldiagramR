@@ -15,6 +15,15 @@
 #'    Default is `TRUE`.
 #' @param includeLabels Optional. Include labels for the model diagram components.
 #'    Default is `TRUE`.
+#' @param orientation Optional. Orientation of the diagram, either vertically or
+#'    horizontally. Options are `"vertical"`, `"horizontal"`. Default is `"vertical"`.
+#' @param scale_fontsize Optional. Proportional font size adjustment for model
+#'    diagram component, fixed effect, and random effect labels.
+#'    Multiplies these label font sizes by the specified amount. Default is `1`.
+#' @param shift_fixed Optional. Additive x axis adjustment for fixed effect labels,
+#'    only used when `orientation == "horizontal"`. Default is `0`.
+#' @param shift_random Optional. Additive x axis adjustment for random effect labels,
+#'    only used when `orientation == "horizontal"`. Default is `0`.
 #' @param nodeColors Optional. Function specifying the colors ([md_color()])
 #'    for the outline of the nodes. Components can be specified individually
 #'    (`diagram`, `random`, and `fixed`).
@@ -30,7 +39,7 @@
 #' graphic size variables `widthVal` and `heightVal` do not currently work. It is
 #' recommended that instead the image is exported to a file such as a PDF and then
 #' reimported to the document. See the examples below.
-#' @returns A DiagrammeR object.
+#' @returns A rendered DiagrammeR graph as an SVG document.
 #' @export
 #'
 #' @examples
@@ -58,11 +67,20 @@
 #'
 model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "PNG",
                            widthVal = 800, heightVal = 1600, includeSizes = TRUE,
-                           includeLabels = TRUE,
+                           includeLabels = TRUE, orientation = "vertical",
+                           scale_fontsize = 1,
+                           shift_fixed = 0, shift_random = 0,
                            nodeColors = md_color(diagram="gray25", random="gray25", fixed="gray25"),
                            nodeFillColors = md_fill(diagram="aliceblue", random="aliceblue", fixed="darkseagreen1"),
                            nodeFontColors = md_fontColor(diagram="black", random="black",fixed="black")){
-
+  if(orientation == "horizontal" & widthVal < heightVal & widthVal==800 & heightVal==1600){
+    # Assuming defaults were not changed for size, and change automatically
+    warning("Orientation changed to horizontal and default diagram size detected, changing width and height values to match a horizontal orientation.")
+    heightVal <- 800
+    widthVal <- 1600
+  } else if(orientation == "horizontal" & widthVal < heightVal){
+    warning("Orientation changed to horizontal and width value less than height value detected, diagram may not be appropriately sized.")
+  }
   if(methods::is(this_model,"merMod")){
     lmer_formula <- deparse1(stats::formula(this_model),
                                    collapse=" ")
@@ -392,6 +410,9 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
   reNames_nested <- rep("",length(names_list))
   reNames_nested_wSize <- rep("",length(names_list))
   nested_df <- theseGroups_subset3_clean
+  max_RE_width <- max(nchar(names_list))
+  max_RE_width_wSize <- max(nchar(names_list))
+
   for(i in 1:length(names_list)){
 
     thisName <- names_list[i]
@@ -425,15 +446,28 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
     if(i == 1){
       reNames_nested[i] <- names(lme_model$groups)[1]
       reNames_nested_wSize[i] <- paste0(reNames_nested[i], "\nNum.=", lme_model$dims$ngrps[[numRE]])
+      max_RE_width <- max(max_RE_width, nchar(reNames_nested[i]))
+      max_RE_width_wSize <- max(max_RE_width_wSize, nchar(reNames_nested_wSize[i]))
     } else if(i == length(names_list)){
       reNames_nested[i] <- "Observation Error"
       reNames_nested_wSize[i] <- paste0(reNames_nested[i], "\nNum.=", lme_model$dims$N)
+      max_RE_width <- max(max_RE_width, nchar(reNames_nested[i]))
+      max_RE_width_wSize <- max(max_RE_width_wSize, nchar(reNames_nested_wSize[i]))
     } else{
       ngrpsCol <- which(names(lme_model$dims$ngrps) == names(lme_model$groups)[i])
-      reNames_nested[i] <- paste(names(lme_model$groups)[i], "in", reNames_nested[i-1])
+      if(i %% 2 == 0){
+        reNames_nested[i] <- paste(names(lme_model$groups)[i], "in", reNames_nested[i-1])
+      } else{
+        reNames_nested[i] <- paste(names(lme_model$groups)[i], "\nin", reNames_nested[i-1])
+      }
       reNames_nested_wSize[i] <- paste0(reNames_nested[i],"\nNum.=", lme_model$dims$ngrps[[ngrpsCol]])
+      longest_row <- max(nchar(strsplit(reNames_nested[i], "\n")[[1]]))
+      longest_row_wSize <- max(nchar(strsplit(reNames_nested_wSize[i], "\n")[[1]]))
+      max_RE_width <- max(max_RE_width, longest_row)
+      max_RE_width_wSize <- max(max_RE_width_wSize, longest_row_wSize)
     }
   }
+
 
   if(includeSizes){
     grp_lng_lme_model <- grp_lng_lme_model %>%
@@ -465,20 +499,22 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
   fixed_RElevel <- rep(numRE+1,numFixed)
   fixedPlaceholders <- rep(as.character(NA), length(names_list))
 
+
   reNamesPlusOE <- c(names(lme_model$groups), "Observation Error")
   if(numFixed > 0){
     for(i in 1:(numRE+1)){
       thisREName <- reNamesPlusOE[i]
       fixedNameList <- names(fixedLevelInfo[fixedLevelInfo==thisREName])
       if(length(fixedNameList) == 0){
-        fixedPlaceholders[i] <- ""
+        fixedPlaceholders[i] <- as.character(NA)
       } else{
         fixedPlaceholders[i] <- paste(fixedNameList, collapse="\n")
       }
     }
   }
 
-  fixedPlaceholders[is.na(fixedPlaceholders)] <- ""
+  max_FE_width <- max(nchar(namesFixed))
+  fixedPlaceholders[is.na(fixedPlaceholders)] <- " "
 
   grp_lng_lme_model <- grp_lng_lme_model %>%
     dplyr::bind_rows(data.frame(name = rep("Fixed Label", numRE+1),
@@ -489,6 +525,7 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
   labelOffset <- 0
   topOnlyTwoLevels <- FALSE
   numTopRELevels <- 3
+
   if(includeLabels){
     grp_lng_lme_model$x_pos <- grp_lng_lme_model$x_pos + 1
     get_y_pos <- grp_lng_lme_model %>%
@@ -512,76 +549,108 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
                                    max(grp_lng_lme_model$y_pos) - 1,
                                    max(grp_lng_lme_model$y_pos))))
     labelOffset <- 3
+    x_axis_adjust <- max_RE_width_wSize/max_FE_width
+  } else{
+    x_axis_adjust <- max_RE_width/max_FE_width
   }
 
-  useFontName = "Arial"
+
+  md_nodes <- grp_lng_lme_model %>%
+    dplyr::filter(!(name %in% c("RE Label", "Fixed Label", "Diagram Label")))
+
+  fixed_nodes <- grp_lng_lme_model %>%
+    dplyr::filter(name == "Fixed Label")
+
+  random_nodes <- grp_lng_lme_model %>%
+    dplyr::filter(name == "RE Label")
+
   if(includeLabels){
-    suppressMessages(
-      nodes_lme_model <- DiagrammeR::create_node_df(
-        n = nrow(grp_lng_lme_model),
-        type="a",
-        label = grp_lng_lme_model$label,
-        style="filled",
-        color=c(rep(nodeColors$diagram, numTopRELevels), # First RE will always have three circles for first, middle, and last
-                rep(nodeColors$diagram,nrow(grp_lng_lme_model) -
-                      (numTopRELevels+2*(numRE+1))-labelOffset),
-                rep(nodeColors$random,numRE+1),
-                rep(nodeColors$fixed,numRE+1),
-                nodeColors$diagram,nodeColors$fixed,nodeColors$random),
-        fillcolor=c(rep(nodeFillColors$diagram, numTopRELevels), # First RE will always have three circles for first, middle, and last
-                    rep(nodeFillColors$diagram,nrow(grp_lng_lme_model) -
-                          (numTopRELevels+2*(numRE+1))-labelOffset),
-                    rep(nodeFillColors$random,numRE+1),
-                    rep(nodeFillColors$fixed,numRE+1),
-                    nodeFillColors$diagram,nodeFillColors$fixed,nodeFillColors$random),
-        fontname=useFontName,
-        fontcolor=c(rep(nodeFontColors$diagram, numTopRELevels), # First RE will always have three circles for first, middle, and last
-                    rep(nodeFontColors$diagram,nrow(grp_lng_lme_model) -
-                          (numTopRELevels+2*(numRE+1))-labelOffset),
-                    rep(nodeFontColors$random,numRE+1),
-                    rep(nodeFontColors$fixed,numRE+1),
-                    nodeFontColors$diagram,nodeFontColors$fixed,nodeFontColors$random),
-        shape=c(rep("circle", numTopRELevels), # First RE will always have three circles for first, middle, and last
-                rep("circle",nrow(grp_lng_lme_model) -
-                      (numTopRELevels+2*(numRE+1))-labelOffset),
-                rep("box",2*(numRE+1) + labelOffset )), # 2*numRE boxes on the top for the random effect labels and fixed effect boxes
-        DiagrammeR::node_aes(
-          x=grp_lng_lme_model$x_pos,
-          y=grp_lng_lme_model$y_pos,
-          fixedsize = FALSE))
-    )
+    md_label_node <- grp_lng_lme_model %>%
+      dplyr::filter(name == "Diagram Label" & label == "Measurement\nDiagram")
+    fixed_label_node <- grp_lng_lme_model %>%
+      dplyr::filter(name == "Diagram Label" & label == "Fixed")
+    random_label_node <- grp_lng_lme_model %>%
+      dplyr::filter(name == "Diagram Label" & label == "Random")
   } else{
-    suppressMessages(
-      nodes_lme_model <- DiagrammeR::create_node_df(
-        n = nrow(grp_lng_lme_model),
-        type="a",
-        label = grp_lng_lme_model$label,
-        style="filled",
-        color=c(rep(nodeColors$diagram, numTopRELevels), # First RE will always have three circles for first, middle, and last
-                rep(nodeColors$diagram,nrow(grp_lng_lme_model) -
-                      (numTopRELevels+2*(numRE+1))-labelOffset),
-                rep(nodeColors$random,numRE+1),
-                rep(nodeColors$fixed,numRE+1)),
-        fillcolor=c(rep(nodeFillColors$diagram, numTopRELevels), # First RE will always have three circles for first, middle, and last
-                    rep(nodeFillColors$diagram,nrow(grp_lng_lme_model) -
-                          (numTopRELevels+2*(numRE+1))-labelOffset),
-                    rep(nodeFillColors$random,numRE+1),
-                    rep(nodeFillColors$fixed,numRE+1)),
-        fontname=useFontName,
-        fontcolor=c(rep(nodeFontColors$diagram, numTopRELevels), # First RE will always have three circles for first, middle, and last
-                    rep(nodeFontColors$diagram,nrow(grp_lng_lme_model) -
-                          (numTopRELevels+2*(numRE+1))-labelOffset),
-                    rep(nodeFontColors$random,numRE+1),
-                    rep(nodeFontColors$fixed,numRE+1)),
-        shape=c(rep("circle", numTopRELevels), # First RE will always have three circles for first, middle, and last
-                rep("circle",nrow(grp_lng_lme_model) -
-                      (numTopRELevels+2*(numRE+1))-labelOffset),
-                rep("box",2*(numRE+1) + labelOffset)), # 2*numRE boxes on the top for the random effect labels and fixed effect boxes
-        DiagrammeR::node_aes(
-          x=grp_lng_lme_model$x_pos,
-          y=grp_lng_lme_model$y_pos,
-          fixedsize = FALSE))
+    md_label_node <- c()
+  }
+
+  useFontName <- "Arial"
+
+  suppressMessages(nodes_fixed <- DiagrammeR::create_node_df(
+    n = nrow(fixed_nodes),
+    type = "fixed",
+    label = fixed_nodes$label,
+    style = "filled",
+    color = nodeColors$fixed,
+    fillcolor = nodeFillColors$fixed,
+    fontname = useFontName,
+    fontcolor = nodeFontColors$fixed,
+    fontsize = 10,
+    shape = "box",
+    DiagrammeR::node_aes(
+      x = fixed_nodes$x_pos,
+      y = fixed_nodes$y_pos,
+      fixedsize = FALSE,
+      tooltip = fixed_nodes$label,
+    ),
+    DiagrammeR::node_data(
+      value = 1:nrow(fixed_nodes)
     )
+  ))
+
+  suppressMessages(nodes_random <- DiagrammeR::create_node_df(
+    n = nrow(random_nodes),
+    type = "random",
+    label = random_nodes$label,
+    style = "filled",
+    color = nodeColors$random,
+    fillcolor = nodeFillColors$random,
+    fontname = useFontName,
+    fontcolor = nodeFontColors$random,
+    fontsize = 10,
+    shape = "box",
+    DiagrammeR::node_aes(
+      x = random_nodes$x_pos,
+      y = random_nodes$y_pos,
+      fixedsize = FALSE,
+      tooltip = random_nodes$label,
+    ),
+    DiagrammeR::node_data(
+      value = 1:nrow(random_nodes)
+    )
+  ))
+  suppressMessages(nodes_md <- DiagrammeR::create_node_df(
+    n = nrow(md_nodes),
+    type = "md",
+    label = md_nodes$label,
+    style = "filled",
+    color = nodeColors$diagram,
+    fillcolor = nodeFillColors$diagram,
+    fontname = useFontName,
+    fontcolor = nodeFontColors$diagram,
+    shape = "circle",
+    DiagrammeR::node_aes(
+      x = md_nodes$x_pos,
+      y = md_nodes$y_pos,
+      fixedsize = FALSE,
+      tooltip = md_nodes$label,
+    ),
+    DiagrammeR::node_data(
+      value = 1:nrow(md_nodes)
+    )
+  ))
+
+  suppressMessages(nodes_lme_model <- DiagrammeR::combine_ndfs(nodes_md, nodes_fixed,
+                                                               nodes_random) %>%
+                     dplyr::mutate(x = x * max(max_RE_width, max_FE_width)/(min(max_RE_width, max_FE_width)),
+                                   fixedsize = FALSE))
+
+  if(orientation=="horizontal"){
+    nodes_lme_model <- nodes_lme_model %>%
+      dplyr::mutate(x_old = x,
+                    x = y,
+                    y = -x_old)
   }
   setNames <- paste0("Set", 1:numRE)
   groupSets <- list(rep(list(), numRE))
@@ -616,6 +685,93 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
       color = "black")
   graph_lme_model <- DiagrammeR::create_graph(nodes_df=nodes_lme_model,
                                               edges_df=edges_lme_model)
+
+
+  if(includeLabels){
+    suppressMessages(graph_lme_model <- graph_lme_model %>%
+                     DiagrammeR::add_n_nodes(
+                       n = 1,
+                       type = "md_label",
+                       label = md_label_node$label,
+                       DiagrammeR::node_aes(
+                         style = "filled",
+                         color = nodeColors$diagram,
+                         fillcolor = nodeFillColors$diagram,
+                         fontname = useFontName,
+                         fontcolor = nodeFontColors$diagram,
+                         fontsize = 10,
+                         shape = "box",
+                         x = md_label_node$x_pos,
+                         y = md_label_node$y_pos,
+                         fixedsize = FALSE,
+                         tooltip = md_label_node$label,
+                       ))  %>%
+                       DiagrammeR::add_n_nodes(
+                         n = 1,
+                         type = "fixed_label",
+                         label = fixed_label_node$label,
+                         DiagrammeR::node_aes(
+                           style = "filled",
+                           color = nodeColors$fixed,
+                           fillcolor = nodeFillColors$fixed,
+                           fontname = useFontName,
+                           fontcolor = nodeFontColors$fixed,
+                           fontsize = 10,
+                           shape = "box",
+                           x = fixed_label_node$x_pos,
+                           y = fixed_label_node$y_pos,
+                           fixedsize = FALSE,
+                           tooltip = fixed_label_node$label,
+                         ))  %>%
+                       DiagrammeR::add_n_nodes(
+                         n = 1,
+                         type = "random_label",
+                         label = random_label_node$label,
+                         DiagrammeR::node_aes(
+                           style = "filled",
+                           color = nodeColors$random,
+                           fillcolor = nodeFillColors$random,
+                           fontname = useFontName,
+                           fontcolor = nodeFontColors$random,
+                           fontsize = 10,
+                           shape = "box",
+                           x = random_label_node$x_pos,
+                           y = random_label_node$y_pos,
+                           fixedsize = FALSE,
+                           tooltip = random_label_node$label,
+                         ))
+    )
+  }
+  if(orientation=="horizontal"){
+    graph_lme_model <- graph_lme_model %>%
+      DiagrammeR::select_nodes() %>%
+      DiagrammeR::mutate_node_attrs_ws(fixedsize = FALSE,
+                                       fontsize = fontsize * scale_fontsize) %>%
+      DiagrammeR::clear_selection() %>%
+      DiagrammeR::select_nodes(
+        conditions = type %in% c("md_label","fixed_label", "random_label")) %>%
+      DiagrammeR::mutate_node_attrs_ws(
+        x_old = x,
+        x = y,
+        y = -x_old
+      ) %>%
+      DiagrammeR::clear_selection() %>%
+      DiagrammeR::select_nodes(
+        conditions = type %in% c("fixed", "fixed_label")) %>%
+      DiagrammeR::nudge_node_positions_ws(
+        dx = shift_fixed, dy = 0) %>%
+      DiagrammeR::clear_selection() %>%
+      DiagrammeR::select_nodes(
+        conditions = type %in% c("random", "random_label")) %>%
+      DiagrammeR::nudge_node_positions_ws(
+        dx = shift_random, dy = 0)
+  } else{
+    graph_lme_model <- graph_lme_model %>%
+      DiagrammeR::select_nodes() %>%
+      DiagrammeR::mutate_node_attrs_ws(fixedsize = FALSE,
+                                       fontsize = fontsize * scale_fontsize)
+  }
+
   if(!is.null(this_file_path)){
     suppressWarnings(
       graph_lme_model %>%
