@@ -4,7 +4,7 @@
 \alias{getFixLevel}
 \title{Identify the fixed effect model structure level}
 \usage{
-getFixLevel(lme_model, fixedCall, randomCall)
+getFixLevel(lme_model, fixedCall, randomCall, obsLevelLabel)
 }
 \arguments{
 \item{lme_model}{A \code{nlme} lme model object inherited from \code{model_diagram()}}
@@ -14,6 +14,8 @@ containing fixed variable names from a merMod object}
 
 \item{randomCall}{The randomCall object from an lme model or parsed text
 containing the random effect structure from a merMod object}
+
+\item{obsLevelLabel}{The label that should be used for the observational level}
 }
 \value{
 The random effect at which the fixed effect is placed at for degrees
@@ -29,5 +31,6 @@ library(nlme)
 library(lme4) # For sleepstudy data
 sleepstudy_lme <- lme(Reaction ~ Days, random=~Days|Subject, data=sleepstudy)
 getFixLevel(sleepstudy_lme, fixedCall = sleepstudy_lme$call$fixed,
-            randomCall = sleepstudy_lme$call$random)
+            randomCall = sleepstudy_lme$call$random,
+            obsLevelLabel = "Observation Error")
 }

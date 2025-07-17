@@ -496,11 +496,13 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
   if(methods::is(this_model,"merMod")){
     fixedLevelInfo <- getFixLevel(lme_model,
                                   fixedCall = parse(text=lmer_formula_fixed_clean),
-                                  randomCall = parse(text=lmer_formula_random_clean))
+                                  randomCall = parse(text=lmer_formula_random_clean),
+                                  obsLevelLabel = obsLevel_label)
   } else if(methods::is(this_model, "lme")){
     fixedLevelInfo <- getFixLevel(lme_model,
                                   fixedCall = lme_model$call$fixed,
-                                  randomCall = lme_model$call$random)
+                                  randomCall = lme_model$call$random,
+                                  obsLevelLabel = obsLevel_label)
   }
 
   namesFixed <- names(fixedLevelInfo)
@@ -837,6 +839,7 @@ catchNumeric <- function(strList) {
 #'    containing fixed variable names from a merMod object
 #' @param randomCall The randomCall object from an lme model or parsed text
 #'    containing the random effect structure from a merMod object
+#' @param obsLevelLabel The label that should be used for the observational level
 #'
 #' @returns The random effect at which the fixed effect is placed at for degrees
 #'    of freedom calculations.
@@ -847,8 +850,9 @@ catchNumeric <- function(strList) {
 #' library(lme4) # For sleepstudy data
 #' sleepstudy_lme <- lme(Reaction ~ Days, random=~Days|Subject, data=sleepstudy)
 #' getFixLevel(sleepstudy_lme, fixedCall = sleepstudy_lme$call$fixed,
-#'             randomCall = sleepstudy_lme$call$random)
-getFixLevel <- function(lme_model, fixedCall, randomCall){
+#'             randomCall = sleepstudy_lme$call$random,
+#'             obsLevelLabel = "Observation Error")
+getFixLevel <- function(lme_model, fixedCall, randomCall, obsLevelLabel){
 
   data <- lme_model$data
 
@@ -970,7 +974,7 @@ getFixLevel <- function(lme_model, fixedCall, randomCall){
   Qp1 <- Q + 1L
   namX <- colnames(X)
   ngrps <- rev(ngrps)[-(1:2)]
-  stratNam <- c(names(ngrps), "Observation")
+  stratNam <- c(names(ngrps), obsLevelLabel)
 
   dfX <- dfTerms <- stats::setNames(c(ngrps, N) - c(0, ngrps), stratNam)
   valX <- stats::setNames(double(p), namX)
