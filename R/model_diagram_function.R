@@ -3,8 +3,8 @@
 #' `model_diagram()` takes a hierarchical nested model and returns a DiagrammeR
 #' object visualizing the fixed and random effects structure.
 #'
-#' @param this_model Input model. Either a lme or merMod object with a nested
-#'    random effects structure.
+#' @param this_model Input model. Either a lme or merMod (including glmerMod)
+#'    object with a nested random effects structure.
 #' @param this_file_path Optional. Path to a location to export the diagram.
 #'    Default is `NULL`.
 #' @param this_file_type Optional. File type to export the diagram.
@@ -163,6 +163,15 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
   } else {
     stop("Please provide a linear mixed effects (lme) model with random effects obtained using the nlme package.",call. = FALSE)
   }
+
+  # Change the label for the lowest level if a generalized linear mixed model
+  # which has no random error term at the observation level
+  if(methods::is(this_model, "glmerMod")){
+    obsLevel_label <- "Observation"
+  } else{
+    obsLevel_label <- "Observation Error"
+  }
+
   ### Get information from provided model and data
 
   ## Random effects structure
@@ -449,7 +458,7 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
       max_RE_width <- max(max_RE_width, nchar(reNames_nested[i]))
       max_RE_width_wSize <- max(max_RE_width_wSize, nchar(reNames_nested_wSize[i]))
     } else if(i == length(names_list)){
-      reNames_nested[i] <- "Observation Error"
+      reNames_nested[i] <- obsLevel_label
       reNames_nested_wSize[i] <- paste0(reNames_nested[i], "\nNum.=", lme_model$dims$N)
       max_RE_width <- max(max_RE_width, nchar(reNames_nested[i]))
       max_RE_width_wSize <- max(max_RE_width_wSize, nchar(reNames_nested_wSize[i]))
@@ -496,11 +505,12 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
 
   namesFixed <- names(fixedLevelInfo)
   numFixed <- length(namesFixed)
+  namesFixed[numFixed] <- obsLevel_label
   fixed_RElevel <- rep(numRE+1,numFixed)
   fixedPlaceholders <- rep(as.character(NA), length(names_list))
 
 
-  reNamesPlusOE <- c(names(lme_model$groups), "Observation Error")
+  reNamesPlusOE <- c(names(lme_model$groups), obsLevel_label)
   if(numFixed > 0){
     for(i in 1:(numRE+1)){
       thisREName <- reNamesPlusOE[i]
@@ -859,8 +869,6 @@ getFixLevel <- function(lme_model, fixedCall, randomCall){
     stop(paste("randomCall has a class that is", class(randomCall)))
   }
 
-
-
   random <- nlme::reStruct(stats::formula(random), data = NULL)
   reSt <- nlme::reStruct(random, REML = REML, data = NULL)
   groups <- nlme::getGroupsFormula(reSt)
@@ -962,7 +970,7 @@ getFixLevel <- function(lme_model, fixedCall, randomCall){
   Qp1 <- Q + 1L
   namX <- colnames(X)
   ngrps <- rev(ngrps)[-(1:2)]
-  stratNam <- c(names(ngrps), "Observation Error")
+  stratNam <- c(names(ngrps), "Observation")
 
   dfX <- dfTerms <- stats::setNames(c(ngrps, N) - c(0, ngrps), stratNam)
   valX <- stats::setNames(double(p), namX)

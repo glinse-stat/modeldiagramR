@@ -23,8 +23,8 @@ model_diagram(
 )
 }
 \arguments{
-\item{this_model}{Input model. Either a lme or merMod object with a nested
-random effects structure.}
+\item{this_model}{Input model. Either a lme or merMod (including glmerMod)
+object with a nested random effects structure.}
 
 \item{this_file_path}{Optional. Path to a location to export the diagram.
 Default is \code{NULL}.}

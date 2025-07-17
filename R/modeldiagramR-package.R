@@ -12,4 +12,5 @@ utils::globalVariables(c("thisLevel","numThisLvl","get(RElist[1])",
                          "groupID","keepThis","thisREold","ObsLevelPos",
                          "ObsLevel_rawPos","rowVal","actName","name",
                          "label","y_pos","meanVal", "x", "y", "x_old",
-                         "id", "fixedsize"))
+                         "id", "fixedsize", "obsLevel_label",
+                         "fontsize", "type"))
