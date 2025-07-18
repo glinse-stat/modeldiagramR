@@ -167,7 +167,7 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
   # Change the label for the lowest level if a generalized linear mixed model
   # which has no random error term at the observation level
   if(methods::is(this_model, "glmerMod")){
-    obsLevel_label <- "Observation"
+    obsLevel_label <- "Observation Level"
   } else{
     obsLevel_label <- "Observation Error"
   }
