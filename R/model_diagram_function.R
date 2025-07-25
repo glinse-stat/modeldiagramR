@@ -509,24 +509,26 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
   numFixed <- length(namesFixed)
   namesFixed[numFixed] <- obsLevel_label
   fixed_RElevel <- rep(numRE+1,numFixed)
-  fixedPlaceholders <- rep(as.character(NA), length(names_list))
-
+  fixedPlaceholders <- rep(" ", length(names_list))
 
   reNamesPlusOE <- c(names(lme_model$groups), obsLevel_label)
+
   if(numFixed > 0){
+    max_FE_width <- max(nchar(namesFixed))
+
     for(i in 1:(numRE+1)){
       thisREName <- reNamesPlusOE[i]
       fixedNameList <- names(fixedLevelInfo[fixedLevelInfo==thisREName])
       if(length(fixedNameList) == 0){
-        fixedPlaceholders[i] <- as.character(NA)
+        fixedPlaceholders[i] <- " "
       } else{
         fixedPlaceholders[i] <- paste(fixedNameList, collapse="\n")
       }
     }
-  }
 
-  max_FE_width <- max(nchar(namesFixed))
-  fixedPlaceholders[is.na(fixedPlaceholders)] <- " "
+  } else{
+    max_FE_width <- max_RE_width
+  }
 
   grp_lng_lme_model <- grp_lng_lme_model %>%
     dplyr::bind_rows(data.frame(name = rep("Fixed Label", numRE+1),
@@ -561,9 +563,9 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
                                    max(grp_lng_lme_model$y_pos) - 1,
                                    max(grp_lng_lme_model$y_pos))))
     labelOffset <- 3
-    x_axis_adjust <- max_RE_width_wSize/max_FE_width
+    x_axis_adjust <- max(max_RE_width_wSize, max_FE_width)/(min(max_RE_width_wSize, max_FE_width))
   } else{
-    x_axis_adjust <- max_RE_width/max_FE_width
+    x_axis_adjust <- max(max_RE_width, max_FE_width)/(min(max_RE_width, max_FE_width))
   }
 
 
@@ -655,7 +657,7 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
 
   suppressMessages(nodes_lme_model <- DiagrammeR::combine_ndfs(nodes_md, nodes_fixed,
                                                                nodes_random) %>%
-                     dplyr::mutate(x = x * max(max_RE_width, max_FE_width)/(min(max_RE_width, max_FE_width)),
+                     dplyr::mutate(x = x * x_axis_adjust,
                                    fixedsize = FALSE))
 
   if(orientation=="horizontal"){
@@ -758,7 +760,8 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
     graph_lme_model <- graph_lme_model %>%
       DiagrammeR::select_nodes() %>%
       DiagrammeR::mutate_node_attrs_ws(fixedsize = FALSE,
-                                       fontsize = fontsize * scale_fontsize) %>%
+                                       fontsize = fontsize * scale_fontsize,
+                                       tooltip = ifelse(is.na(tooltip)," ",tooltip)) %>%
       DiagrammeR::clear_selection() %>%
       DiagrammeR::select_nodes(
         conditions = type %in% c("md_label","fixed_label", "random_label")) %>%
@@ -781,7 +784,8 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
     graph_lme_model <- graph_lme_model %>%
       DiagrammeR::select_nodes() %>%
       DiagrammeR::mutate_node_attrs_ws(fixedsize = FALSE,
-                                       fontsize = fontsize * scale_fontsize)
+                                       fontsize = fontsize * scale_fontsize,
+                                       tooltip = ifelse(is.na(tooltip)," ",tooltip))
   }
 
   if(!is.null(this_file_path)){
