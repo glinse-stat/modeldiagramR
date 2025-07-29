@@ -5,36 +5,37 @@
 \title{Hierarchical model diagramming}
 \usage{
 model_diagram(
-  this_model,
-  this_file_path = NULL,
-  this_file_type = "PNG",
-  widthVal = 800,
-  heightVal = 1600,
+  modelObject,
+  filePath = NULL,
+  fileType = "PNG",
+  width = 800,
+  height = 1600,
   includeSizes = TRUE,
   includeLabels = TRUE,
   orientation = "vertical",
-  scale_fontsize = 1,
-  shift_fixed = 0,
-  shift_random = 0,
+  scaleFontSize = 1,
+  shiftFixed = 0,
+  shiftRandom = 0,
   nodeColors = md_color(diagram = "gray25", random = "gray25", fixed = "gray25"),
   nodeFillColors = md_fill(diagram = "aliceblue", random = "aliceblue", fixed =
     "darkseagreen1"),
-  nodeFontColors = md_fontColor(diagram = "black", random = "black", fixed = "black")
+  nodeFontColors = md_fontColor(diagram = "black", random = "black", fixed = "black"),
+  exportObject = 1
 )
 }
 \arguments{
-\item{this_model}{Input model. Either a lme or merMod (including glmerMod)
+\item{modelObject}{Input model. Either a lme or merMod (including glmerMod)
 object with a nested random effects structure.}
 
-\item{this_file_path}{Optional. Path to a location to export the diagram.
+\item{filePath}{Optional. Path to a location to export the diagram.
 Default is \code{NULL}.}
 
-\item{this_file_type}{Optional. File type to export the diagram.
+\item{fileType}{Optional. File type to export the diagram.
 Default is \code{"PNG"}.}
 
-\item{widthVal}{Optional. Width of diagram in pixels. Default is \code{800}.}
+\item{width}{Optional. Width of diagram in pixels. Default is \code{800}.}
 
-\item{heightVal}{Optional. Height of diagram in pixels. Default is \code{1600}.}
+\item{height}{Optional. Height of diagram in pixels. Default is \code{1600}.}
 
 \item{includeSizes}{Optional. Include group sizes in random effect labels.
 Default is \code{TRUE}.}
@@ -45,14 +46,14 @@ Default is \code{TRUE}.}
 \item{orientation}{Optional. Orientation of the diagram, either vertically or
 horizontally. Options are \code{"vertical"}, \code{"horizontal"}. Default is \code{"vertical"}.}
 
-\item{scale_fontsize}{Optional. Proportional font size adjustment for model
+\item{scaleFontSize}{Optional. Proportional font size adjustment for model
 diagram component, fixed effect, and random effect labels.
 Multiplies these label font sizes by the specified amount. Default is \code{1}.}
 
-\item{shift_fixed}{Optional. Additive x axis adjustment for fixed effect labels,
+\item{shiftFixed}{Optional. Additive x-axis adjustment for fixed effect labels,
 only used when \code{orientation == "horizontal"}. Default is \code{0}.}
 
-\item{shift_random}{Optional. Additive x axis adjustment for random effect labels,
+\item{shiftRandom}{Optional. Additive x-axis adjustment for random effect labels,
 only used when \code{orientation == "horizontal"}. Default is \code{0}.}
 
 \item{nodeColors}{Optional. Function specifying the colors (\code{\link[=md_color]{md_color()}})
@@ -66,9 +67,15 @@ for the fill color of the nodes. Components can be specified individually
 \item{nodeFontColors}{Optional. Function specifying the colors (\code{\link[=md_fontColor]{md_fontColor()}})
 for the font color of text in the nodes. Components can be specified
 individually (\code{diagram}, \code{random}, and \code{fixed}).}
+
+\item{exportObject}{Optional. Object(s) to return, \code{1} for a rendered DiagrammeR
+graph as an SVG document, \code{2} for a \code{dgr_graph} object, and \code{3} returns
+a list containing both objects.
+Default is \code{1}.}
 }
 \value{
-A rendered DiagrammeR graph as an SVG document.
+A rendered DiagrammeR graph as an SVG document (default), or a \code{dgr_graph}
+object, or a list containing both (\code{dgr_graph_obj}, \code{rendered_graph_obj}).
 }
 \description{
 \code{model_diagram()} takes a hierarchical nested model and returns a DiagrammeR
@@ -76,7 +83,7 @@ object visualizing the fixed and random effects structure.
 }
 \details{
 NOTE: When including this function in an RMD document and knitting to PDF, the
-graphic size variables \code{widthVal} and \code{heightVal} do not currently work. It is
+graphic size variables \code{width} and \code{height} do not currently work. It is
 recommended that instead the image is exported to a file such as a PDF and then
 reimported to the document. See the examples below.
 }
@@ -98,8 +105,8 @@ model_diagram(sleepstudy_lme)
 # Knitting to PDF example - Don't run
 \dontrun{
 model_diagram(sleepstudy_lmer,
-              this_file_path="sleepstudy_lmer_modeldiagram.PDF",
-              this_file_type="PDF")
+              filePath="sleepstudy_lmer_modeldiagram.PDF",
+              fileType="PDF")
 knitr::include_graphics("sleepstudy_lmer_modeldiagram.PDF")
               }
 

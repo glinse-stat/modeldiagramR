@@ -3,26 +3,26 @@
 #' `model_diagram()` takes a hierarchical nested model and returns a DiagrammeR
 #' object visualizing the fixed and random effects structure.
 #'
-#' @param this_model Input model. Either a lme or merMod (including glmerMod)
+#' @param modelObject Input model. Either a lme or merMod (including glmerMod)
 #'    object with a nested random effects structure.
-#' @param this_file_path Optional. Path to a location to export the diagram.
+#' @param filePath Optional. Path to a location to export the diagram.
 #'    Default is `NULL`.
-#' @param this_file_type Optional. File type to export the diagram.
+#' @param fileType Optional. File type to export the diagram.
 #'    Default is `"PNG"`.
-#' @param widthVal Optional. Width of diagram in pixels. Default is `800`.
-#' @param heightVal Optional. Height of diagram in pixels. Default is `1600`.
+#' @param width Optional. Width of diagram in pixels. Default is `800`.
+#' @param height Optional. Height of diagram in pixels. Default is `1600`.
 #' @param includeSizes Optional. Include group sizes in random effect labels.
 #'    Default is `TRUE`.
 #' @param includeLabels Optional. Include labels for the model diagram components.
 #'    Default is `TRUE`.
 #' @param orientation Optional. Orientation of the diagram, either vertically or
 #'    horizontally. Options are `"vertical"`, `"horizontal"`. Default is `"vertical"`.
-#' @param scale_fontsize Optional. Proportional font size adjustment for model
+#' @param scaleFontSize Optional. Proportional font size adjustment for model
 #'    diagram component, fixed effect, and random effect labels.
 #'    Multiplies these label font sizes by the specified amount. Default is `1`.
-#' @param shift_fixed Optional. Additive x axis adjustment for fixed effect labels,
+#' @param shiftFixed Optional. Additive x-axis adjustment for fixed effect labels,
 #'    only used when `orientation == "horizontal"`. Default is `0`.
-#' @param shift_random Optional. Additive x axis adjustment for random effect labels,
+#' @param shiftRandom Optional. Additive x-axis adjustment for random effect labels,
 #'    only used when `orientation == "horizontal"`. Default is `0`.
 #' @param nodeColors Optional. Function specifying the colors ([md_color()])
 #'    for the outline of the nodes. Components can be specified individually
@@ -33,13 +33,18 @@
 #' @param nodeFontColors Optional. Function specifying the colors ([md_fontColor()])
 #'    for the font color of text in the nodes. Components can be specified
 #'    individually (`diagram`, `random`, and `fixed`).
+#' @param exportObject Optional. Object(s) to return, `1` for a rendered DiagrammeR
+#'    graph as an SVG document, `2` for a `dgr_graph` object, and `3` returns
+#'    a list containing both objects.
+#'    Default is `1`.
 #'
 #' @details
 #' NOTE: When including this function in an RMD document and knitting to PDF, the
-#' graphic size variables `widthVal` and `heightVal` do not currently work. It is
+#' graphic size variables `width` and `height` do not currently work. It is
 #' recommended that instead the image is exported to a file such as a PDF and then
 #' reimported to the document. See the examples below.
-#' @returns A rendered DiagrammeR graph as an SVG document.
+#' @returns A rendered DiagrammeR graph as an SVG document (default), or a `dgr_graph`
+#' object, or a list containing both (`dgr_graph_obj`, `rendered_graph_obj`).
 #' @export
 #'
 #' @examples
@@ -60,31 +65,32 @@
 #' # Knitting to PDF example - Don't run
 #' \dontrun{
 #' model_diagram(sleepstudy_lmer,
-#'               this_file_path="sleepstudy_lmer_modeldiagram.PDF",
-#'               this_file_type="PDF")
+#'               filePath="sleepstudy_lmer_modeldiagram.PDF",
+#'               fileType="PDF")
 #' knitr::include_graphics("sleepstudy_lmer_modeldiagram.PDF")
 #'               }
 #'
-model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "PNG",
-                           widthVal = 800, heightVal = 1600, includeSizes = TRUE,
+model_diagram <- function(modelObject, filePath = NULL, fileType = "PNG",
+                           width = 800, height = 1600, includeSizes = TRUE,
                            includeLabels = TRUE, orientation = "vertical",
-                           scale_fontsize = 1,
-                           shift_fixed = 0, shift_random = 0,
+                           scaleFontSize = 1,
+                           shiftFixed = 0, shiftRandom = 0,
                            nodeColors = md_color(diagram="gray25", random="gray25", fixed="gray25"),
                            nodeFillColors = md_fill(diagram="aliceblue", random="aliceblue", fixed="darkseagreen1"),
-                           nodeFontColors = md_fontColor(diagram="black", random="black",fixed="black")){
-  if(orientation == "horizontal" & widthVal < heightVal & widthVal==800 & heightVal==1600){
+                           nodeFontColors = md_fontColor(diagram="black", random="black",fixed="black"),
+                           exportObject = 1){
+  if(orientation == "horizontal" & width < height & width==800 & height==1600){
     # Assuming defaults were not changed for size, and change automatically
     warning("Orientation changed to horizontal and default diagram size detected, changing width and height values to match a horizontal orientation.")
-    heightVal <- 800
-    widthVal <- 1600
-  } else if(orientation == "horizontal" & widthVal < heightVal){
+    height <- 800
+    width <- 1600
+  } else if(orientation == "horizontal" & width < height){
     warning("Orientation changed to horizontal and width value less than height value detected, diagram may not be appropriately sized.")
   }
-  if(methods::is(this_model,"merMod")){
-    lmer_formula <- deparse1(stats::formula(this_model),
+  if(methods::is(modelObject,"merMod")){
+    lmer_formula <- deparse1(stats::formula(modelObject),
                                    collapse=" ")
-    lmer_formula_fixed <- deparse1(stats::formula(this_model,
+    lmer_formula_fixed <- deparse1(stats::formula(modelObject,
                                                         fixed.only=TRUE),
                                          collapse=" ")
     lmer_formula_random <- substring(stringr::str_remove(lmer_formula,
@@ -131,15 +137,15 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
                                                                          parse(text=lmer_formula_random_clean)))
     }
 
-    lmer_model_data <- stats::model.frame(this_model)
+    lmer_model_data <- stats::model.frame(modelObject)
     if(stringr::str_detect(lmer_formula_fixed, stringr::fixed("cbind("))){
       lmer_formula_response <- trimws(substring(lmer_formula_response,
                                                 first=7,
                                                 last = stringr::str_locate(lmer_formula_fixed,
                                                                            stringr::fixed(","))-1)[[1]])
 
-      lmer_model_data <- cbind(as.data.frame(stats::model.frame(this_model)[[1]])[1],
-                                     stats::model.frame(this_model)[-1])
+      lmer_model_data <- cbind(as.data.frame(stats::model.frame(modelObject)[[1]])[1],
+                                     stats::model.frame(modelObject)[-1])
       responseColumn <- which(names(lmer_model_data)==lmer_formula_response) # should always be 1
     } else{
       responseColumn <- which(names(lmer_model_data)==lmer_formula_response) # should always be 1
@@ -158,15 +164,15 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
     if(!exists("lme_model")){
       stop("Invalid specification of random effects. Please check that the random effects are specified in hierarchical notation.")
     }
-  } else if(methods::is(this_model, "lme")){
-    lme_model <- this_model
+  } else if(methods::is(modelObject, "lme")){
+    lme_model <- modelObject
   } else {
     stop("Please provide a linear mixed effects (lme) model with random effects obtained using the nlme package.",call. = FALSE)
   }
 
   # Change the label for the lowest level if a generalized linear mixed model
   # which has no random error term at the observation level
-  if(methods::is(this_model, "glmerMod")){
+  if(methods::is(modelObject, "glmerMod")){
     obsLevel_label <- "Observation Level"
   } else{
     obsLevel_label <- "Observation Error"
@@ -493,12 +499,12 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
   }
 
 
-  if(methods::is(this_model,"merMod")){
+  if(methods::is(modelObject,"merMod")){
     fixedLevelInfo <- getFixLevel(lme_model,
                                   fixedCall = parse(text=lmer_formula_fixed_clean),
                                   randomCall = parse(text=lmer_formula_random_clean),
                                   obsLevelLabel = obsLevel_label)
-  } else if(methods::is(this_model, "lme")){
+  } else if(methods::is(modelObject, "lme")){
     fixedLevelInfo <- getFixLevel(lme_model,
                                   fixedCall = lme_model$call$fixed,
                                   randomCall = lme_model$call$random,
@@ -760,7 +766,7 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
     graph_lme_model <- graph_lme_model %>%
       DiagrammeR::select_nodes() %>%
       DiagrammeR::mutate_node_attrs_ws(fixedsize = FALSE,
-                                       fontsize = fontsize * scale_fontsize,
+                                       fontsize = fontsize * scaleFontSize,
                                        tooltip = ifelse(is.na(tooltip)," ",tooltip)) %>%
       DiagrammeR::clear_selection() %>%
       DiagrammeR::select_nodes(
@@ -774,31 +780,44 @@ model_diagram <- function(this_model, this_file_path = NULL, this_file_type = "P
       DiagrammeR::select_nodes(
         conditions = type %in% c("fixed", "fixed_label")) %>%
       DiagrammeR::nudge_node_positions_ws(
-        dx = shift_fixed, dy = 0) %>%
+        dx = shiftFixed, dy = 0) %>%
       DiagrammeR::clear_selection() %>%
       DiagrammeR::select_nodes(
         conditions = type %in% c("random", "random_label")) %>%
       DiagrammeR::nudge_node_positions_ws(
-        dx = shift_random, dy = 0)
+        dx = shiftRandom, dy = 0)
   } else{
     graph_lme_model <- graph_lme_model %>%
       DiagrammeR::select_nodes() %>%
       DiagrammeR::mutate_node_attrs_ws(fixedsize = FALSE,
-                                       fontsize = fontsize * scale_fontsize,
+                                       fontsize = fontsize * scaleFontSize,
                                        tooltip = ifelse(is.na(tooltip)," ",tooltip))
   }
 
-  if(!is.null(this_file_path)){
+  if(!is.null(filePath)){
     suppressWarnings(
       graph_lme_model %>%
-        DiagrammeR::export_graph(file_name = this_file_path,
-                                 file_type = this_file_type,
-                                 width=widthVal,height=heightVal)
+        DiagrammeR::export_graph(file_name = filePath,
+                                 file_type = fileType,
+                                 width=width,height=height)
     )
   }
-  graph_lme_model %>%
-    DiagrammeR::render_graph(width=widthVal,height=heightVal,
-                             output="graph", as_svg=TRUE)
+  if(exportObject == 1){
+    graph_lme_model %>%
+      DiagrammeR::render_graph(width=width,height=height,
+                               output="graph", as_svg=TRUE)
+  } else if(exportObject == 2){
+    return(graph_lme_model)
+  } else{
+
+    rg_svg <- graph_lme_model %>%
+      DiagrammeR::render_graph(width=width,height=height,
+                               output="graph", as_svg=TRUE)
+
+    return(list(dgr_graph_obj = graph_lme_model, rendered_graph_obj = rg_svg))
+
+  }
+
 
 }
 
