@@ -111,3 +111,8 @@ knitr::include_graphics("sleepstudy_lmer_modeldiagram.PDF")
               }
 
 }
+\references{
+Greta M. Linse, Mark C. Greenwood, Ronald K. June,
+\emph{Data-Driven Model Structure Diagrams for Hierarchical Linear Mixed Models},
+J. data sci.(2026), 1-21, DOI 10.6339/26-JDS1222
+}

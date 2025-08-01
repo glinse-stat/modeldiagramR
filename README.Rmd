@@ -17,11 +17,16 @@ library(knitr)
 
 # README
 
-This is an R package to create model diagrams for hierarchical linear mixed effects models by Greta Linse and Mark Greenwood that is currently under development.  Currently, it is only available on GitHub.  
+This is an R package to create model diagrams for hierarchical linear mixed effects models by Greta Linse and Mark Greenwood.  
 
-## Installation
+## Package Documentation
 
-You must install the `remotes` package first.
+Details about the package are available in Linse (2026)  <doi:10.6339/26-JDS1222>.
+
+## Installation from GitHub
+
+To install the latest development version you can install the package from GitHub.
+To do so you must install the `remotes` package first.
 
 ```{r install-devtools, eval=FALSE}
 install.packages("remotes")
@@ -33,4 +38,5 @@ Then, use `install_github` to install this package.
 remotes::install_github("glinse-stat/modeldiagramR")
 ```
 
-This package provides code and data sets to support and is publicly available for others to use.
+This package provides code and data sets to support and is publicly available 
+for others to use. It is licensed under GPL-3.

@@ -1,0 +1,11 @@
+bibentry(
+  bibtype  = "Article",
+  title    = "Data-Driven Model Structure Diagrams for Hierarchical Linear Mixed Models",
+  author   = "Greta M. Linse and Mark C. Greenwood and Ronald K. June",
+  journal  = "Journal of Data Science",
+  year     = "2026",
+  pages    = "1--21",
+  doi      = "10.6339/26-JDS1222",
+  issn = "1680-743X",
+  publisher = "School of Statistics, Renmin University of China"
+)

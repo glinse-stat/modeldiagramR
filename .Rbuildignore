@@ -1,2 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+README.rmd
+NEWS.qmd
+^LICENSE\.md$
+^/inst/CITATION\.R$
+cran-comments.md

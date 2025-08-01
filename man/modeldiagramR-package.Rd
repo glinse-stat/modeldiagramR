@@ -6,7 +6,7 @@
 \alias{modeldiagramR-package}
 \title{modeldiagramR: Generate Model Diagrams for Linear Mixed Effect Models}
 \description{
-Generates DiagrammeR model diagrams for hierarchical linear mixed effects models.
+Generates DiagrammeR model diagrams for hierarchical linear mixed effects models. Details can be found in Linse (2026) \doi{10.6339/26-JDS1222}.
 }
 \seealso{
 Useful links:

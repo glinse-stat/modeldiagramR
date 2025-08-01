@@ -47,6 +47,12 @@
 #' object, or a list containing both (`dgr_graph_obj`, `rendered_graph_obj`).
 #' @export
 #'
+#' @import DiagrammeRsvg
+#'
+#' @references Greta M. Linse, Mark C. Greenwood, Ronald K. June,
+#' *Data-Driven Model Structure Diagrams for Hierarchical Linear Mixed Models*,
+#' J. data sci.(2026), 1-21, DOI 10.6339/26-JDS1222
+#'
 #' @examples
 #' # merMod object example
 #' library(lme4)
@@ -596,6 +602,7 @@ model_diagram <- function(modelObject, filePath = NULL, fileType = "PNG",
   }
 
   useFontName <- "Arial"
+  tooltip <- NULL
 
   suppressMessages(nodes_fixed <- DiagrammeR::create_node_df(
     n = nrow(fixed_nodes),
