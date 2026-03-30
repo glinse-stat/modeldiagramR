@@ -2,7 +2,6 @@ Package: modeldiagramR
 Type: Package
 Title: Generate Model Diagrams for Linear Mixed Effect Models
 Version: 0.2.0
-
 Authors@R: c(
     person(given = "Greta",
     family = "Linse",
@@ -31,8 +30,7 @@ Imports:
     gtools,
     forcats,
     nlme,
-    DiagrammeR,
-    DiagrammeRsvg
+    DiagrammeR
 Suggests:
     ggplot2,
     patchwork,
@@ -40,7 +38,8 @@ Suggests:
     lme4,
     lmerTest,
     knitr,
-    viridis
+    viridis,
+    DiagrammeRsvg
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

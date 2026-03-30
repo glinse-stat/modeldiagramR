@@ -7,14 +7,7 @@
 ???  running under: Windows 11 x64 (build 26200)
 
 ## R CMD check results
-There were no ERRORs or WARNINGs. 
-
-There was 1 NOTE:
-
-* checking for future file timestamps ... NOTE
-  unable to verify current time
-
-  This problem does not seem to impact the package.
+There were no ERRORs, WARNINGs, or NOTEs.
 
 ## Downstream dependencies
 I have also run R CMD check on downstream dependencies of modeldiagramR.
