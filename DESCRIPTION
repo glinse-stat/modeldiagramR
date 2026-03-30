@@ -2,6 +2,7 @@ Package: modeldiagramR
 Type: Package
 Title: Generate Model Diagrams for Linear Mixed Effect Models
 Version: 0.2.0
+
 Authors@R: c(
     person(given = "Greta",
     family = "Linse",
