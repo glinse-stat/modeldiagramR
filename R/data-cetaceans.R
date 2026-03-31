@@ -31,9 +31,12 @@
 #' @keywords data cetacean dolphins repeated measures mixed models
 #' @examples
 #' library(dplyr)
+#' data("cetaceans")
+#'
+#' \donttest{
+#' # Exploratory Data Plots
 #' library(ggplot2)
 #' library(viridis)
-#' data("cetaceans")
 #' p1 <- cetaceans %>%
 #'   ggplot(aes(x = DolphinID, y = Age, group=fDolphinID)) +
 #'   geom_boxplot(aes(color=fSpecies)) +
@@ -56,10 +59,20 @@
 #'
 #' library(patchwork)
 #' (p1) / (p2) / (p3)
+#' }
+#' # Simple model for testing
+#' library(nlme)
+#' lme_simple <- lme(Age ~ fSex*fStain*fLocation,
+#'                   random = ~ 1|fSpecies/fDolphinID,
+#'                   data = cetaceans)
+#' model_diagram(lme_simple)
 #'
+#' \donttest{
+#' # Intended full model
 #' library(lme4)
 #' library(lmerTest)
 #' lmer1 <- lmer(Age ~ fSex*fStain*fLocation + (1|fSpecies/fDolphinID), data = cetaceans)
 #' summary(lmer1)
 #' model_diagram(lmer1)
+#' }
 "cetaceans"

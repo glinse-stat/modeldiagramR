@@ -38,9 +38,12 @@ stain (Mayer Haematoxylin, Ehlrich Haematoxylin, and Toluidine Blue).
 }
 \examples{
 library(dplyr)
+data("cetaceans")
+
+\donttest{
+# Exploratory Data Plots
 library(ggplot2)
 library(viridis)
-data("cetaceans")
 p1 <- cetaceans \%>\%
   ggplot(aes(x = DolphinID, y = Age, group=fDolphinID)) +
   geom_boxplot(aes(color=fSpecies)) +
@@ -63,12 +66,22 @@ p3 <- cetaceans \%>\% ggplot(aes(x = fSpecies, y = Age)) +
 
 library(patchwork)
 (p1) / (p2) / (p3)
+}
+# Simple model for testing
+library(nlme)
+lme_simple <- lme(Age ~ fSex*fStain*fLocation,
+                  random = ~ 1|fSpecies/fDolphinID,
+                  data = cetaceans)
+model_diagram(lme_simple)
 
+\donttest{
+# Intended full model
 library(lme4)
 library(lmerTest)
 lmer1 <- lmer(Age ~ fSex*fStain*fLocation + (1|fSpecies/fDolphinID), data = cetaceans)
 summary(lmer1)
 model_diagram(lmer1)
+}
 }
 \references{
 Zuur AF, Ieno EN, Walker N, Saveliev AA, and Smith GM. 2009. Mixed effects models and extensions in ecology with R. Statistics for Biology and Health. Springer New York, p. 460. DOI: 10.1007/978-0-387-87458-6

@@ -30,6 +30,7 @@ The code used to simulate the data is included in the examples below.#'
 }
 \examples{
 \dontrun{
+# Code used to simulate data
 library(tidyverse)
 library(FielDHub)
 wp <- paste("IRR_", c("NO", "Yes"), sep = "") #Irrigation (2 Whole plots)
@@ -96,10 +97,18 @@ for(h in 1:3){
 }
 }
 data("SSPD3")
+
+# Simple model for testing
+library(nlme)
+lme_simple <- lme(RESP ~ Fungicide + Variety, random=~1|LOCATION/WHOLE_PLOT,
+                     data=SSPD3)
+model_diagram(lme_simple)
+
+\donttest{
+# Intended full model
 aov_results <- aov(RESP ~ Irrigation*Fungicide*Variety + Error(LOCATION/WHOLE_PLOT/SPLIT_PLOT),
                    data=SSPD3)
 summary(aov_results)
-
 library(lme4)
 library(modeldiagramR)
 lmer_results <- lmer(RESP ~ Irrigation*Fungicide*Variety + (1|LOCATION/WHOLE_PLOT/SPLIT_PLOT),
@@ -107,9 +116,12 @@ lmer_results <- lmer(RESP ~ Irrigation*Fungicide*Variety + (1|LOCATION/WHOLE_PLO
 summary(lmer_results)
 
 anova(lmer_results)
+
 model_diagram(lmer_results)
+
 model_diagram(lmer_results, width = 800, height=400, orientation="horizontal",
               shiftFixed = 2, shiftRandom = 5, scaleFontSize = 2)
+}
 }
 \references{
 Murillo D, Gezan S (2024). \emph{FielDHub: A Shiny App for Design of Experiments in Life Sciences}. R package version 1.4.2, \url{https://CRAN.R-project.org/package=FielDHub}.

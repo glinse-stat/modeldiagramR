@@ -30,12 +30,16 @@
 #' @source Digitized version of published Figures 1 and 2 combined with Table 1 (does not exactly match published numerical summaries!)
 #' @keywords data tattoo repeated measures mixed models
 #' @examples
-#' library(ggthemes)
 #' library(dplyr)
-#' library(ggplot2)
-#' library(viridis)
+#' data("combinedtattoo")
 #' combinedtattoo <- combinedtattoo %>%
 #'   mutate(SubjectF = factor(Subject))
+#'
+#' \donttest{
+#' # Exploratory Data Plots
+#' library(ggthemes)
+#' library(ggplot2)
+#' library(viridis)
 #' p1 <- combinedtattoo %>%
 #'   ggplot(aes(x = Tat_not, y = SweatRate, group = SubjectF)) +
 #'     geom_line(aes(color = SubjectF)) +
@@ -53,12 +57,19 @@
 #'
 #' library(patchwork)
 #' (p1 + p2) / (p3)
+#' }
 #'
 #' library(lmerTest)
 #' lmer1 <- lmer(SweatRate ~ Tat_not + (1|Subject),
 #'               data = combinedtattoo)
 #' summary(lmer1)
+#' \dontrun{
+#' model_diagram(lmer1)
+#' }
+#'
 #' lmerFL <- lmer(SweatRate ~ Tat_not*Weight_kg + (1|Subject),
 #'                data = combinedtattoo)
 #' summary(lmerFL)
+#'
+#' model_diagram(lmerFL)
 "combinedtattoo"

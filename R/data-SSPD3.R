@@ -25,6 +25,7 @@
 #' @keywords data split-split-plot experimental design
 #' @examples
 #' \dontrun{
+#' # Code used to simulate data
 #' library(tidyverse)
 #' library(FielDHub)
 #' wp <- paste("IRR_", c("NO", "Yes"), sep = "") #Irrigation (2 Whole plots)
@@ -91,10 +92,18 @@
 #' }
 #' }
 #' data("SSPD3")
+#'
+#' # Simple model for testing
+#' library(nlme)
+#' lme_simple <- lme(RESP ~ Fungicide + Variety, random=~1|LOCATION/WHOLE_PLOT,
+#'                      data=SSPD3)
+#' model_diagram(lme_simple)
+#'
+#' \donttest{
+#' # Intended full model
 #' aov_results <- aov(RESP ~ Irrigation*Fungicide*Variety + Error(LOCATION/WHOLE_PLOT/SPLIT_PLOT),
 #'                    data=SSPD3)
 #' summary(aov_results)
-#'
 #' library(lme4)
 #' library(modeldiagramR)
 #' lmer_results <- lmer(RESP ~ Irrigation*Fungicide*Variety + (1|LOCATION/WHOLE_PLOT/SPLIT_PLOT),
@@ -102,7 +111,10 @@
 #' summary(lmer_results)
 #'
 #' anova(lmer_results)
+#'
 #' model_diagram(lmer_results)
+#'
 #' model_diagram(lmer_results, width = 800, height=400, orientation="horizontal",
 #'               shiftFixed = 2, shiftRandom = 5, scaleFontSize = 2)
+#' }
 "SSPD3"

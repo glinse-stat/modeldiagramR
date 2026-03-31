@@ -37,12 +37,16 @@ assumed to be correctly matched but were merged
 based on the information in a plot and in a separate table
 }
 \examples{
-library(ggthemes)
 library(dplyr)
-library(ggplot2)
-library(viridis)
+data("combinedtattoo")
 combinedtattoo <- combinedtattoo \%>\%
   mutate(SubjectF = factor(Subject))
+
+\donttest{
+# Exploratory Data Plots
+library(ggthemes)
+library(ggplot2)
+library(viridis)
 p1 <- combinedtattoo \%>\%
   ggplot(aes(x = Tat_not, y = SweatRate, group = SubjectF)) +
     geom_line(aes(color = SubjectF)) +
@@ -60,14 +64,21 @@ p3 <- combinedtattoo \%>\%
 
 library(patchwork)
 (p1 + p2) / (p3)
+}
 
 library(lmerTest)
 lmer1 <- lmer(SweatRate ~ Tat_not + (1|Subject),
               data = combinedtattoo)
 summary(lmer1)
+\dontrun{
+model_diagram(lmer1)
+}
+
 lmerFL <- lmer(SweatRate ~ Tat_not*Weight_kg + (1|Subject),
                data = combinedtattoo)
 summary(lmerFL)
+
+model_diagram(lmerFL)
 }
 \references{
 Luetkemeier, M., Hanisko, J., and K. Aho (2017) Skin Tattoos Alter Sweat Rate and Na+ Concentration. Medicine & Science in Sports & Exercise 49(7):p 1432-1436. DOI: 10.1249/MSS.0000000000001244
