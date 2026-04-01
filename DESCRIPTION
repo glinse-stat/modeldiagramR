@@ -13,7 +13,7 @@ Authors@R: c(
        role = c("aut"),
        email = "greenwood@montana.edu")
   )
-Description: Generates DiagrammeR model diagrams for hierarchical linear mixed 
+Description: Generates 'DiagrammeR' model diagrams for hierarchical linear mixed 
     effects models. Details can be found in Linse (2026) <doi:10.6339/26-JDS1222>.
 Depends:
     R (>= 4.1),

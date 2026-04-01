@@ -19,3 +19,7 @@ I have also run R CMD check on downstream dependencies of modeldiagramR.
 All packages that were available were checking passed except for:
 
 -  webshot: with message "Package suggested but not available for checking"
+
+## CRAN feedback
+Per CRAN instructions, placed the 'DiagrammeR' package name in single quotes in 
+the "Description" field of the DESCRIPTION file.
