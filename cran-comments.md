@@ -23,3 +23,5 @@ All packages that were available were checking passed except for:
 ## CRAN feedback
 Per CRAN instructions, placed the 'DiagrammeR' package name in single quotes in 
 the "Description" field of the DESCRIPTION file.
+
+Addressed the additional CRAN feedback as listed in the "News.md" file.
