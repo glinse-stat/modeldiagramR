@@ -4,6 +4,24 @@ format: gfm
 
 # News
 
+## 0.2.1
+
+-   Removed linebreak from "Description" field of the DESCRIPTION file.
+
+_   Removed `\dontrun` from examples in documentation.
+
+-   Added examples for the internal functions missing examples.
+
+-   Tagged internal functions as such in the documentation using `@keywords internal`.
+
+-   Added return values for `md_color()`, `md_fill()`, and `md_fontColor()`.
+
+-   Created a function to simulate the SSPD3 data in order to remove the code used to simulate the data from a `\dontrun` code block in the documentation for that data.
+
+-   Added additional packages to the "Suggests" list: `FielDHub` and `rsvg`.
+
+-   Ensured temporary paths are used in the example of writing to a PDF file.
+
 ## 0.2.0
 
 -   `modeldiagramR` preparing for release on CRAN.

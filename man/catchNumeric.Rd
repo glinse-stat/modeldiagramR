@@ -27,3 +27,4 @@ catchNumeric(numList)
 mixList <- c("A","2","C","4")
 catchNumeric(mixList)
 }
+\keyword{internal}

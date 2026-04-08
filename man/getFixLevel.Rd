@@ -34,3 +34,4 @@ getFixLevel(sleepstudy_lme, fixedCall = sleepstudy_lme$call$fixed,
             randomCall = sleepstudy_lme$call$random,
             obsLevelLabel = "Observation Error")
 }
+\keyword{internal}

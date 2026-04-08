@@ -67,10 +67,11 @@ library(patchwork)
 }
 
 library(lmerTest)
+\donttest{
 lmer1 <- lmer(SweatRate ~ Tat_not + (1|Subject),
               data = combinedtattoo)
 summary(lmer1)
-\dontrun{
+
 model_diagram(lmer1)
 }
 

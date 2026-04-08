@@ -66,14 +66,14 @@
 #' summary(sleepstudy_lme)
 #' model_diagram(sleepstudy_lme)
 #'
-#' # Knitting to PDF example - Don't run
-#' \dontrun{
+#' \donttest{
+#' library(rsvg) # required to produce a PDF file
+#' temp_path <- tempfile("sleepstudy_lmer_modeldiagram", fileext=".pdf")
+#' # Knitting to PDF example
 #' model_diagram(sleepstudy_lmer,
-#'               filePath="sleepstudy_lmer_modeldiagram.PDF",
-#'               fileType="PDF")
-#' knitr::include_graphics("sleepstudy_lmer_modeldiagram.PDF")
-#'               }
-#'
+#'                filePath= temp_path,
+#'                fileType="PDF")
+#' }
 model_diagram <- function(modelObject, filePath = NULL, fileType = "PNG",
                            width = 800, height = 1600, includeSizes = TRUE,
                            includeLabels = TRUE, orientation = "vertical",
@@ -835,6 +835,7 @@ model_diagram <- function(modelObject, filePath = NULL, fileType = "PNG",
 #' Adapted from: https://stackoverflow.com/questions/24129124/how-to-determine-if-a-character-vector-is-a-valid-numeric-or-integer-vector
 #' Post by Adriano Rivolli on Sep 21, 2017 at 16:30 accessed on Dec 10, 2024 at 4:30 pm
 #'
+#' @keywords internal
 #' @param strList A character vector
 #'
 #' @returns A list of vectors, with each vector having the correct type, either character or numeric.
@@ -862,6 +863,7 @@ catchNumeric <- function(strList) {
 #' to identify the correct placement of each fixed effect and interaction term
 #' in a model structure diagram for hierarchical mixed effects models.
 #'
+#' @keywords internal
 #' @param lme_model A `nlme` lme model object inherited from `model_diagram()`
 #' @param fixedCall The fixedCall object from an lme model or parsed text
 #'    containing fixed variable names from a merMod object
@@ -1077,6 +1079,7 @@ getFixLevel <- function(lme_model, fixedCall, randomCall, obsLevelLabel){
 #
 #'  Code translation assistance provided by Anthropic's Claude 3.5 Sonnet (2024 version) on December 17, 2024.
 #'
+#' @keywords internal
 #' @param x Column of X matrix to be assessed
 #' @param grp Integer vector with groups
 #'
@@ -1084,7 +1087,10 @@ getFixLevel <- function(lme_model, fixedCall, randomCall, obsLevelLabel){
 #' @export
 #'
 #' @examples
-#' \dontrun{inner_perc_R(X[, j], grps[, i])}
+#' library(lme4)
+#' data(sleepstudy)
+#' # When used in model_diagram() group labels ("grps") should be unique
+#' inner_perc_R(sleepstudy[,"Days"],sleepstudy[,"Subject"])
 inner_perc_R <- function(x, grp){
 
   if (length(x) != length(grp)) {
@@ -1125,7 +1131,7 @@ inner_perc_R <- function(x, grp){
 #
 #'  Code translation assistance provided by Anthropic's Claude 3.5 Sonnet (2024 version) on December 17, 2024.
 #'
-#'
+#' @keywords internal
 #' @param X Matrix or data frame from lme object
 #' @param grps Matrix or data frame where each column is a grouping variable
 #' @param p If `NULL` the number of columns of `X`, else a pre-specified number
@@ -1137,7 +1143,11 @@ inner_perc_R <- function(x, grp){
 #' @export
 #'
 #' @examples
-#' \dontrun{inner_perc_table_R(X, grps)}
+#' library(lme4)
+#' data(sleepstudy)
+#' # When used in model_diagram() group labels ("grps") should be unique
+#' inner_perc_table_R(sleepstudy[,c("Reaction","Days")],
+#'                    as.data.frame(sleepstudy[,"Subject"]))
 inner_perc_table_R <- function(X, grps, p = NULL, Q = NULL){
 
   # Input validation and preparation
@@ -1227,6 +1237,7 @@ inner_perc_table_R <- function(X, grps, p = NULL, Q = NULL){
 #' @aliases NULL
 NULL
 
+#' @returns A list object containing color specifications for the border of the nodes.
 #' @export
 #' @rdname md
 md_color <- function(diagram="gray25", random="gray25", fixed="gray25") {
@@ -1237,6 +1248,7 @@ md_color <- function(diagram="gray25", random="gray25", fixed="gray25") {
   )
 }
 
+#' @returns A list object containing color specifications for the fill of the nodes.
 #' @export
 #' @rdname md
 md_fill <- function(diagram="aliceblue", random="aliceblue", fixed="darkseagreen1") {
@@ -1247,6 +1259,7 @@ md_fill <- function(diagram="aliceblue", random="aliceblue", fixed="darkseagreen
   )
 }
 
+#' @returns A list object containing color specifications for the font color of the nodes.
 #' @export
 #' @rdname md
 md_fontColor <- function(diagram="black", random="black", fixed="black") {

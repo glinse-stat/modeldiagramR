@@ -102,14 +102,14 @@ sleepstudy_lme <- lme(Reaction ~ Days, random=~Days|Subject, data=sleepstudy)
 summary(sleepstudy_lme)
 model_diagram(sleepstudy_lme)
 
-# Knitting to PDF example - Don't run
-\dontrun{
+\donttest{
+library(rsvg) # required to produce a PDF file
+temp_path <- tempfile("sleepstudy_lmer_modeldiagram", fileext=".pdf")
+# Knitting to PDF example
 model_diagram(sleepstudy_lmer,
-              filePath="sleepstudy_lmer_modeldiagram.PDF",
-              fileType="PDF")
-knitr::include_graphics("sleepstudy_lmer_modeldiagram.PDF")
-              }
-
+               filePath= temp_path,
+               fileType="PDF")
+}
 }
 \references{
 Greta M. Linse, Mark C. Greenwood, Ronald K. June,

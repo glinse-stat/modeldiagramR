@@ -1,7 +1,7 @@
 Package: modeldiagramR
 Type: Package
 Title: Generate Model Diagrams for Linear Mixed Effect Models
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: c(
     person(given = "Greta",
     family = "Linse",
@@ -13,8 +13,7 @@ Authors@R: c(
        role = c("aut"),
        email = "greenwood@montana.edu")
   )
-Description: Generates 'DiagrammeR' model diagrams for hierarchical linear mixed 
-    effects models. Details can be found in Linse (2026) <doi:10.6339/26-JDS1222>.
+Description: Generates 'DiagrammeR' model diagrams for hierarchical linear mixed effects models. Details can be found in Linse (2026) <doi:10.6339/26-JDS1222>.
 Depends:
     R (>= 4.1),
 Imports:
@@ -40,7 +39,9 @@ Suggests:
     knitr,
     viridis,
     DiagrammeRsvg,
-    webshot
+    webshot,
+    FielDHub,
+    rsvg
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

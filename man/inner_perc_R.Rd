@@ -23,5 +23,9 @@ Translated \code{inner_perc()} from nlme's nlmefit.c file (https://github.com/cr
 Code translation assistance provided by Anthropic's Claude 3.5 Sonnet (2024 version) on December 17, 2024.
 }
 \examples{
-\dontrun{inner_perc_R(X[, j], grps[, i])}
+library(lme4)
+data(sleepstudy)
+# When used in model_diagram() group labels ("grps") should be unique
+inner_perc_R(sleepstudy[,"Days"],sleepstudy[,"Subject"])
 }
+\keyword{internal}

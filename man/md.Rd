@@ -28,6 +28,13 @@ for the elements in the fixed effect variable boxes.
 Default is \code{"gray25"} for (\code{\link[=md_color]{md_color()}}), \code{"darkseagreen1"} for (\code{\link[=md_fill]{md_fill()}}),
 and \code{"black"} for (\code{\link[=md_fontColor]{md_fontColor()}}).}
 }
+\value{
+A list object containing color specifications for the border of the nodes.
+
+A list object containing color specifications for the fill of the nodes.
+
+A list object containing color specifications for the font color of the nodes.
+}
 \description{
 Similar to \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}}'s \code{\link[ggplot2:theme]{ggplot2::theme()}} system, the \code{md_} functions
 specify the display of how the node components of the diagram are drawn.
